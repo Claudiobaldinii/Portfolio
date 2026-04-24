@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Claudio Baldini — Finance & Data Analyst. Portfolio profesional.">
+    <title>Claudio Baldini — Finance & Data Analyst</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#hero" class="nav-logo">Claudio Baldini</a>
+            <div class="nav-menu" id="navMenu">
+                <a href="#about"      class="nav-link" data-i18n="nav.about">Sobre mí</a>
+                <a href="#experience" class="nav-link" data-i18n="nav.experience">Experiencia</a>
+                <a href="#projects"   class="nav-link" data-i18n="nav.projects">Proyectos</a>
+                <a href="#skills"     class="nav-link" data-i18n="nav.skills">Habilidades</a>
+                <a href="#contact"    class="nav-link" data-i18n="nav.contact">Contacto</a>
+                <button class="lang-btn" id="langToggle" aria-label="Switch language">EN</button>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-grid-bg"></div>
+        <canvas id="heroCanvas" aria-hidden="true"></canvas>
+        <div class="hero-glow"></div>
+        <div class="hero-content">
+            <p class="hero-greeting" data-i18n="hero.greeting">Hola, soy</p>
+            <h1 class="hero-name">Claudio Baldini</h1>
+            <h2 class="hero-role" data-i18n="hero.role">Finance &amp; Data Analyst</h2>
+            <p class="hero-description" data-i18n="hero.description">
+                Profesional financiero con experiencia en gestión de activos y controlling, especializado en análisis de datos y automatización en entornos financieros.
+            </p>
+            <div class="hero-buttons">
+                <a href="#projects" class="btn btn-primary" data-i18n="hero.btn.projects">Ver proyectos</a>
+                <a href="#contact"  class="btn btn-outline"  data-i18n="hero.btn.contact">Contactar</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" data-i18n="nav.about">Sobre mí</span>
+                <h2 class="section-title" data-i18n="about.title">Quién soy</h2>
+            </div>
+
+            <!-- Bio text — full width -->
+            <div class="about-intro fade-in">
+                <p data-i18n="about.text">Soy un profesional con más de 3 años de experiencia en finanzas y contabilidad, actualmente en GASIB (CEPSA) como Gestor de Activos y Contable General. Complemento mi perfil financiero con formación en análisis de datos — Python, SQL, Power BI — orientando mi desarrollo hacia la automatización y el análisis descriptivo en entornos financieros. Actualmente estoy completando dos especializaciones en ThePower orientadas al mundo de la IA — «Especialización IA Developer» y «Power IA v.5» —, con el objetivo de integrar herramientas de inteligencia artificial en procesos financieros y de análisis de datos para aumentar la productividad.</p>
+            </div>
+
+            <!-- Education grid -->
+            <div class="about-education fade-in">
+                <h3 data-i18n="about.education.title">Formación</h3>
+                <div class="edu-list">
+
+                    <!-- Featured: Máster con diploma -->
+                    <div class="edu-item edu-item--featured">
+                        <div class="edu-main">
+                            <div class="edu-icon">🎓</div>
+                            <div class="edu-details">
+                                <strong data-i18n="about.edu1.title">Máster en Data Analytics</strong>
+                                <span>ThePower Business School</span>
+                                <small>2024–2025</small>
+                                <a href="https://verified.sertifier.com/en/verify/35524001443935/"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="btn-verify" data-i18n="about.edu1.verify">Ver acreditación oficial →</a>
+                            </div>
+                        </div>
+                        <img src="assets/diploma_master.png.png"
+                             alt="Diploma Máster Data Analytics"
+                             class="diploma-thumb"
+                             id="diplomaThumb">
+                    </div>
+
+                    <div class="edu-item">
+                        <div class="edu-icon">📋</div>
+                        <div class="edu-details">
+                            <strong data-i18n="about.edu2.title">FP Superior en Administración y Finanzas</strong>
+                            <span>iFP</span>
+                            <small data-i18n="about.edu2.note">2021–2023 · Nota: 9,17</small>
+                        </div>
+                    </div>
+
+                    <div class="edu-item">
+                        <div class="edu-icon">📊</div>
+                        <div class="edu-details">
+                            <strong data-i18n="about.edu3.title">Certificación Excel Avanzado</strong>
+                            <span>Universidad Complutense de Madrid</span>
+                            <small>2023</small>
+                        </div>
+                    </div>
+
+                    <div class="edu-item">
+                        <div class="edu-icon">🏆</div>
+                        <div class="edu-details">
+                            <strong data-i18n="about.edu4.title">Certified Data Analytics</strong>
+                            <span>ThePower</span>
+                            <small data-i18n="about.edu4.note">Dic 2025</small>
+                        </div>
+                    </div>
+
+                    <div class="edu-item">
+                        <div class="edu-icon">🏛️</div>
+                        <div class="edu-details">
+                            <strong data-i18n="about.edu5.title">Licenciatura en Business Administration and Management</strong>
+                            <span>Universidad Rafael Urdaneta</span>
+                            <small>2017–2020</small>
+                        </div>
+                    </div>
+
+                    <div class="edu-item">
+                        <div class="edu-icon">📚</div>
+                        <div class="edu-details">
+                            <strong data-i18n="about.edu6.title">Bachillerato en Ciencias</strong>
+                            <span>Colegio Bellas Artes</span>
+                            <small>Sep 2012 – Jul 2017</small>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== LIGHTBOX ===== -->
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Diploma">
+        <div class="lightbox-overlay" id="lightboxOverlay"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
+            <img src="assets/diploma_master.png.png" alt="Diploma Máster Data Analytics" id="lightboxImg">
+        </div>
+    </div>
+
+    <!-- ===== EXPERIENCE ===== -->
+    <section class="section section-alt" id="experience">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" data-i18n="nav.experience">Experiencia</span>
+                <h2 class="section-title" data-i18n="exp.title">Trayectoria profesional</h2>
+            </div>
+            <div class="timeline">
+
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <div>
+                                <h3 class="timeline-company">GASIB · CEPSA</h3>
+                                <p class="timeline-role" data-i18n="exp1.role">Gestor de Activos / Contable General</p>
+                            </div>
+                            <span class="timeline-date" data-i18n="exp1.date">Oct 2025 – Presente</span>
+                        </div>
+                        <ul class="timeline-tasks">
+                            <li data-i18n="exp1.t1">Gestión integral del inmovilizado material e inmaterial</li>
+                            <li data-i18n="exp1.t2">Creación, validación y liquidación de proyectos PEP en SAP</li>
+                            <li data-i18n="exp1.t3">Análisis de informes CAF y conciliación de activos</li>
+                            <li data-i18n="exp1.t4">Participación en cierre contable mensual</li>
+                            <li data-i18n="exp1.t5">Apoyo a auditoría interna y externa</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <div>
+                                <h3 class="timeline-company">Azzam Vivienda</h3>
+                                <p class="timeline-role" data-i18n="exp2.role">Administrativo Contable</p>
+                            </div>
+                            <span class="timeline-date" data-i18n="exp2.date">Sep 2023 – Sep 2025</span>
+                        </div>
+                        <ul class="timeline-tasks">
+                            <li data-i18n="exp2.t1">Contabilización y control de Capex y Opex de fondos inmobiliarios</li>
+                            <li data-i18n="exp2.t2">Conciliación bancaria con SAP</li>
+                            <li data-i18n="exp2.t3">Manejo y análisis de datos financieros con cuadros de mando</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-card">
+                        <div class="timeline-header">
+                            <div>
+                                <h3 class="timeline-company">Renovalia Energy Group</h3>
+                                <p class="timeline-role" data-i18n="exp3.role">Técnico Junior de Tesorería</p>
+                            </div>
+                            <span class="timeline-date" data-i18n="exp3.date">May 2023 – Sep 2023</span>
+                        </div>
+                        <ul class="timeline-tasks">
+                            <li data-i18n="exp3.t1">Gestión y control de 120 cuentas bancarias</li>
+                            <li data-i18n="exp3.t2">Registro y control de avales</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PROJECTS ===== -->
+    <section class="section" id="projects">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" data-i18n="nav.projects">Proyectos</span>
+                <h2 class="section-title" data-i18n="proj.title">Mis proyectos</h2>
+            </div>
+            <div class="projects-grid">
+
+                <article class="project-card fade-in">
+                    <div class="project-body">
+                        <div class="project-icon">📈</div>
+                        <h3 class="project-title" data-i18n="proj1.title">Análisis de Salarios — Data Science vs Data Analytics</h3>
+                        <p class="project-desc" data-i18n="proj1.desc">EDA completo sobre salarios del sector datos en EEUU (2020-2024). Limpieza, transformación y dashboard interactivo en Excel con análisis por experiencia, modalidad, tamaño de empresa y evolución anual.</p>
+                        <div class="project-tags">
+                            <span class="tag">Excel</span>
+                            <span class="tag">EDA</span>
+                            <span class="tag">Dashboard</span>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <a href="https://github.com/Claudiobaldinii/Analisis_salarios"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm" data-i18n="proj.github">Ver en GitHub →</a>
+                    </div>
+                </article>
+
+                <article class="project-card fade-in">
+                    <div class="project-body">
+                        <div class="project-icon">🛒</div>
+                        <h3 class="project-title" data-i18n="proj2.title">Análisis E-commerce — Proyecto Final</h3>
+                        <p class="project-desc" data-i18n="proj2.desc">Análisis 360° de un e-commerce con Python (Pandas) para limpieza y transformación de datos, y Power BI para modelado y dashboards de ventas, clientes y logística. Incluye medidas DAX y KPIs clave.</p>
+                        <div class="project-tags">
+                            <span class="tag">Python</span>
+                            <span class="tag">Pandas</span>
+                            <span class="tag">Power BI</span>
+                            <span class="tag">DAX</span>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <a href="https://github.com/Claudiobaldinii/Proyecto_Final"
+                           target="_blank" rel="noopener noreferrer"
+                           class="btn btn-sm" data-i18n="proj.github">Ver en GitHub →</a>
+                    </div>
+                </article>
+
+                <article class="project-card fade-in">
+                    <div class="project-body">
+                        <div class="project-icon">🤖</div>
+                        <span class="project-badge" data-i18n="proj3.badge">En desarrollo</span>
+                        <h3 class="project-title" data-i18n="proj3.title">Extractor de Facturas PDF</h3>
+                        <p class="project-desc" data-i18n="proj3.desc">Herramienta de automatización en Python para extraer datos contables de facturas en PDF y estructurarlos automáticamente. Orientada a reducir trabajo manual en procesos contables.</p>
+                        <div class="project-tags">
+                            <span class="tag">Python</span>
+                            <span class="tag" data-i18n="tag.automation">Automatización</span>
+                            <span class="tag">PDF</span>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <span class="btn btn-sm btn-disabled" data-i18n="proj3.wip">Próximamente →</span>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SKILLS ===== -->
+    <section class="section section-alt" id="skills">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" data-i18n="nav.skills">Habilidades</span>
+                <h2 class="section-title" data-i18n="skills.title">Stack &amp; competencias</h2>
+            </div>
+            <div class="skills-grid">
+
+                <div class="skill-group fade-in">
+                    <h3 data-i18n="skills.data">Análisis de Datos</h3>
+                    <div class="skill-chips">
+                        <div class="skill-chip">
+                            <span class="sc-icon">🗄️</span>
+                            <span class="sc-label">SQL</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">🐍</span>
+                            <span class="sc-label">Python (Pandas)</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">📊</span>
+                            <span class="sc-label">Power BI</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">📋</span>
+                            <span class="sc-label" data-i18n="skill.excel">Excel Avanzado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="skill-group fade-in">
+                    <h3 data-i18n="skills.finance">Finanzas</h3>
+                    <div class="skill-chips">
+                        <div class="skill-chip">
+                            <span class="sc-icon">⚙️</span>
+                            <span class="sc-label">SAP (FI-AA)</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">📈</span>
+                            <span class="sc-label" data-i18n="skill.controlling">Controlling</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">📒</span>
+                            <span class="sc-label" data-i18n="skill.accounting">Contabilidad General</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">🏗️</span>
+                            <span class="sc-label" data-i18n="skill.assets">Gestión de Activos</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="skill-group fade-in">
+                    <h3 data-i18n="skills.other">Otros</h3>
+                    <div class="skill-chips">
+                        <div class="skill-chip">
+                            <span class="sc-icon">🔗</span>
+                            <span class="sc-label">Git &amp; GitHub</span>
+                        </div>
+                        <div class="skill-chip">
+                            <span class="sc-icon">🤖</span>
+                            <span class="sc-label" data-i18n="skill.ai">IA aplicada</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="section-header fade-in">
+                <span class="section-label" data-i18n="nav.contact">Contacto</span>
+                <h2 class="section-title" data-i18n="contact.title">Hablemos</h2>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info fade-in">
+                    <p data-i18n="contact.intro">¿Tienes un proyecto o propuesta? Estoy disponible para nuevas oportunidades.</p>
+                    <div class="contact-links">
+                        <a href="mailto:Cbaldiniwork@gmail.com" class="contact-item">
+                            <div class="contact-icon">✉️</div>
+                            <div class="contact-detail">
+                                <strong>Email</strong>
+                                <span>Cbaldiniwork@gmail.com</span>
+                            </div>
+                        </a>
+                        <a href="tel:+34658209727" class="contact-item">
+                            <div class="contact-icon">📱</div>
+                            <div class="contact-detail">
+                                <strong data-i18n="contact.phone">Teléfono</strong>
+                                <span>658 209 727</span>
+                            </div>
+                        </a>
+                        <a href="https://es.linkedin.com/in/claudio-baldini-2338251b9"
+                           target="_blank" rel="noopener noreferrer" class="contact-item">
+                            <div class="contact-icon">💼</div>
+                            <div class="contact-detail">
+                                <strong>LinkedIn</strong>
+                                <span>claudio-baldini</span>
+                            </div>
+                        </a>
+                        <a href="https://github.com/Claudiobaldinii"
+                           target="_blank" rel="noopener noreferrer" class="contact-item">
+                            <div class="contact-icon">💻</div>
+                            <div class="contact-detail">
+                                <strong>GitHub</strong>
+                                <span>Claudiobaldinii</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="contact-form fade-in">
+                    <form id="contactForm" novalidate>
+                        <div class="form-group">
+                            <label for="fname" data-i18n="contact.form.name">Nombre</label>
+                            <input type="text" id="fname" name="name" autocomplete="name"
+                                   placeholder="Tu nombre" data-ph="contact.form.name.ph" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="femail">Email</label>
+                            <input type="email" id="femail" name="email" autocomplete="email"
+                                   placeholder="tu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fmessage" data-i18n="contact.form.message">Mensaje</label>
+                            <textarea id="fmessage" name="message" rows="5"
+                                      placeholder="Tu mensaje..." data-ph="contact.form.message.ph" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full" data-i18n="contact.form.send">
+                            Enviar mensaje
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p data-i18n="footer.text">© 2026 Claudio Baldini. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
