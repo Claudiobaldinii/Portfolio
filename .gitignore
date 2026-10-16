@@ -5,3 +5,7 @@ out/
 *.tsbuildinfo
 .impeccable/review/
 .impeccable/questions/
+CLAUDE.md
+PRODUCT.md
+DESIGN.md
+.impeccable/
