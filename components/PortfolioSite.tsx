@@ -1,83 +1,191 @@
 "use client";
 
-import Image from "next/image";
+import { ArrowUpRight, BriefcaseBusiness, ChevronDown, GitBranch, Mail, Phone, X } from "lucide-react";
 import {
-  ArrowRight,
-  BadgeCheck,
-  BarChart3,
-  BriefcaseBusiness,
-  Building2,
-  CheckCircle2,
-  ChevronRight,
-  Database,
-  ExternalLink,
-  GitBranch,
-  GraduationCap,
-  Mail,
-  Menu,
-  MessageSquareText,
-  Phone,
-  ScanText,
-  Sparkles,
-  Store,
-  X,
-} from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { HeroCanvas } from "@/components/HeroCanvas";
-import { content, Language, navItems } from "@/lib/content";
+  FormEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { CareerChart } from "@/components/CareerChart";
+import { AmbientData } from "@/components/AmbientData";
+import { CursorTrail } from "@/components/CursorTrail";
+import { Inspector, InspectorAnchor } from "@/components/Inspector";
+import { Scramble } from "@/components/Scramble";
+import { contact, content, FunctionCode, functions, Language } from "@/lib/content";
+import { inspectorText, PreviewId, previews } from "@/lib/previews";
 
-const projectIcons = {
-  chart: BarChart3,
-  store: Store,
-  scan: ScanText,
-};
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-const educationIcons = [GraduationCap, BriefcaseBusiness, BarChart3, BadgeCheck, Building2, Database];
+const projectIds: PreviewId[] = ["prj-salarios", "prj-ecommerce", "prj-facturas"];
+const degreeIds: PreviewId[] = ["edu-master", "edu-ifp", "edu-uru", "edu-bach"];
+const certIds: PreviewId[] = ["cert-data", "cert-excel", "cert-ia", "cert-dataviz"];
 
-const navNums: Record<string, string> = {
-  about: "01",
-  experience: "02",
-  projects: "03",
-  skills: "04",
-  contact: "05",
-};
+type OpenPreview = { id: PreviewId; anchor: InspectorAnchor; pinned: boolean; sheet: boolean };
+
+function decimalYear(date: Date) {
+  return date.getFullYear() + date.getMonth() / 12 + date.getDate() / 365;
+}
+
+function useSheetMode() {
+  return () => window.matchMedia("(hover: none), (max-width: 720px)").matches;
+}
 
 export function PortfolioSite() {
   const [language, setLanguage] = useState<Language>("es");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [command, setCommand] = useState("");
+  const [commandError, setCommandError] = useState(false);
+  const [active, setActive] = useState<FunctionCode | null>(null);
+  const [flash, setFlash] = useState<FunctionCode | null>(null);
+  const [openRole, setOpenRole] = useState(0);
+  const [clock, setClock] = useState<string | null>(null);
+  const [now, setNow] = useState(2026 + 9.5 / 12);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [sent, setSent] = useState(false);
-
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal");
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            io.unobserve(entry.target);
-          }
-        }
-      },
-      { threshold: 0.08, rootMargin: "0px 0px -32px 0px" }
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
+  const [preview, setPreview] = useState<OpenPreview | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const inspectorRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const openTimer = useRef(0);
+  const closeTimer = useRef(0);
+  const isSheet = useSheetMode();
 
   const t = useMemo(() => content[language], [language]);
+  const p = previews[language];
+  const it = inspectorText[language];
 
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
   useEffect(() => {
-    const update = () => setScrolled(window.scrollY > 16);
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
+    const format = new Intl.DateTimeFormat("es-ES", {
+      timeZone: "Europe/Madrid",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const tick = () => {
+      const date = new Date();
+      setClock(format.format(date));
+      setNow(decimalYear(date));
+    };
+    const first = window.setTimeout(tick, 0);
+    const id = window.setInterval(tick, 15000);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(id);
+    };
   }, []);
+
+  /* Active function key follows the panel in the middle of the screen. */
+  useEffect(() => {
+    const sections = functions
+      .map((fn) => document.getElementById(fn.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const fn = functions.find((f) => f.id === entry.target.id);
+          setActive(fn ? fn.code : null);
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    sections.forEach((el) => io.observe(el));
+    const hero = document.querySelector(".hero");
+    if (hero) io.observe(hero);
+    return () => io.disconnect();
+  }, []);
+
+  /* Reveal-on-scroll; content stays visible without JS. */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("js");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".reveal").forEach((el) => el.setAttribute("data-in", ""));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.setAttribute("data-in", "");
+          io.unobserve(entry.target);
+          const counter = entry.target.querySelector<HTMLElement>("[data-count]");
+          if (counter) countUp(counter);
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
+    );
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
+  const jump = useCallback((code: FunctionCode) => {
+    const fn = functions.find((f) => f.code === code);
+    const el = fn && document.getElementById(fn.id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    history.replaceState(null, "", `#${fn.id}`);
+    setFlash(null);
+    window.requestAnimationFrame(() => setFlash(code));
+    window.setTimeout(() => setFlash(null), 1200);
+  }, []);
+
+  const closePreview = useCallback((restoreFocus = false) => {
+    window.clearTimeout(openTimer.current);
+    window.clearTimeout(closeTimer.current);
+    setPreview(null);
+    if (restoreFocus) triggerRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && preview) {
+        closePreview(true);
+        return;
+      }
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement;
+      if (target.closest("input, textarea, select, [contenteditable]")) return;
+      const fn = functions.find((f) => f.key === event.key);
+      if (fn) {
+        event.preventDefault();
+        jump(fn.code);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [jump, preview, closePreview]);
+
+  /* Hover previews close on scroll; pinned ones close on an outside press. */
+  useEffect(() => {
+    if (!preview) return;
+    const onScroll = () => {
+      if (!preview.pinned) closePreview();
+    };
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as Element;
+      if (target.closest(".inspector, [data-preview]")) return;
+      closePreview();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [preview, closePreview]);
+
+  useEffect(() => {
+    if (preview?.pinned) inspectorRef.current?.focus({ preventScroll: true });
+  }, [preview?.pinned, preview?.id]);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -86,11 +194,108 @@ export function PortfolioSite() {
     };
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", onKeyDown);
+    closeRef.current?.focus();
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [lightboxOpen]);
+
+  /* Stable handlers; the row id travels on the element's data attributes. */
+  const previewState = useRef<OpenPreview | null>(null);
+  useEffect(() => {
+    previewState.current = preview;
+  }, [preview]);
+
+  const onRowEnter = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    const current = previewState.current;
+    if (event.pointerType !== "mouse" || current?.pinned) return;
+    const id = event.currentTarget.dataset.preview as PreviewId;
+    window.clearTimeout(closeTimer.current);
+    window.clearTimeout(openTimer.current);
+    const anchor = { x: event.clientX, y: event.clientY };
+    const open = () => setPreview({ id, anchor, pinned: false, sheet: false });
+    if (current) open();
+    else openTimer.current = window.setTimeout(open, 160);
+  }, []);
+
+  const onRowLeave = useCallback((event: ReactPointerEvent<HTMLElement>) => {
+    if (event.pointerType !== "mouse") return;
+    window.clearTimeout(openTimer.current);
+    if (!previewState.current?.pinned) closeTimer.current = window.setTimeout(() => setPreview(null), 220);
+  }, []);
+
+  const onRowClick = useCallback(
+    (event: ReactMouseEvent<HTMLButtonElement>) => {
+      const current = previewState.current;
+      const id = event.currentTarget.dataset.for as PreviewId;
+      window.clearTimeout(openTimer.current);
+      window.clearTimeout(closeTimer.current);
+      triggerRef.current = event.currentTarget;
+      if (current?.id === id && current.pinned) {
+        closePreview();
+        return;
+      }
+      const rect = event.currentTarget.getBoundingClientRect();
+      const keyboard = event.detail === 0;
+      const anchor = keyboard
+        ? { x: rect.left + Math.min(rect.width, 520), y: rect.top + 24 }
+        : current?.id === id
+          ? current.anchor
+          : { x: event.clientX, y: event.clientY };
+      setPreview({ id, anchor, pinned: true, sheet: isSheet() });
+    },
+    [closePreview, isSheet]
+  );
+
+  const onRowKey = useCallback(
+    (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (event.key === "Escape") closePreview(true);
+    },
+    [closePreview]
+  );
+
+  /* Props for any row that opens an inspector card. */
+  function previewRow(id: PreviewId) {
+    return {
+      "data-preview": id,
+      className: preview?.id === id ? "is-previewing" : undefined,
+      onPointerEnter: onRowEnter,
+      onPointerLeave: onRowLeave,
+    };
+  }
+
+  function previewButton(id: PreviewId, label: string) {
+    return {
+      type: "button" as const,
+      className: "row-hit",
+      "data-for": id,
+      "aria-haspopup": "dialog" as const,
+      "aria-expanded": preview?.id === id,
+      "aria-label": `${label} · ${it.more}`,
+      onClick: onRowClick,
+      onKeyDown: onRowKey,
+    };
+  }
+
+  function runCommand(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = command.trim().toUpperCase();
+    const fn = functions.find(
+      (f) =>
+        f.code === query ||
+        f.key === query ||
+        content.es.fn[f.code].toUpperCase() === query ||
+        content.en.fn[f.code].toUpperCase() === query
+    );
+    if (!fn) {
+      setCommandError(true);
+      return;
+    }
+    setCommandError(false);
+    setCommand("");
+    jump(fn.code);
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -98,296 +303,441 @@ export function PortfolioSite() {
     const name = String(form.get("name") || "");
     const email = String(form.get("email") || "");
     const message = String(form.get("message") || "");
-    const subject = encodeURIComponent(`Contacto portfolio - ${name || "Nuevo mensaje"}`);
-    const body = encodeURIComponent(`${message}\n\nNombre: ${name}\nEmail: ${email}`);
-
-    window.location.href = `mailto:Cbaldiniwork@gmail.com?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent(`Portfolio · ${name || "Nuevo contacto"}`);
+    const body = encodeURIComponent(`${message}\n\n${name}\n${email}`);
+    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
     setSent(true);
-    window.setTimeout(() => setSent(false), 2800);
+    window.setTimeout(() => setSent(false), 3200);
   }
+
+  const panelProps = (code: FunctionCode) => ({
+    id: functions.find((f) => f.code === code)!.id,
+    className: `panel${flash === code ? " is-flashing" : ""}`,
+    "aria-labelledby": `${code}-title`,
+  });
+
+  const activeIndex = active ? functions.findIndex((f) => f.code === active) : -1;
+  const openPreview = preview ? p[preview.id] : null;
 
   return (
     <>
-      <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
-        <nav className="nav-shell" aria-label="Navegación principal">
-          <a className="brand" href="#hero" onClick={() => setMenuOpen(false)}>
-            Claudio Baldini
+      <AmbientData />
+      <CursorTrail />
+
+      <a className="skip" href="#perfil">
+        {language === "es" ? "Saltar al contenido" : "Skip to content"}
+      </a>
+
+      <header className="bar">
+        <div className="bar-top shell">
+          <a className="brand" href="#top" aria-label="Claudio Baldini">
+            <span className="brand-ticker">BALDINI C</span>
+            <span className="brand-desc">Finance &amp; Data</span>
           </a>
 
-          <div className={`nav-links ${menuOpen ? "is-open" : ""}`}>
-            {navItems.map((item) => (
-              <a key={item.key} href={item.href} onClick={() => setMenuOpen(false)}>
-                <span className="nav-num">{navNums[item.key]}</span>
-                {t.nav[item.key]}
-              </a>
-            ))}
+          <form className="cmd" onSubmit={runCommand} role="search">
+            <label className="cmd-label" htmlFor="cmd">
+              {t.bar.cmdLabel}
+            </label>
+            <span className="cmd-prompt" aria-hidden="true">
+              &gt;
+            </span>
+            <input
+              id="cmd"
+              value={command}
+              onChange={(e) => {
+                setCommand(e.target.value);
+                setCommandError(false);
+              }}
+              placeholder={t.bar.cmdPlaceholder}
+              autoComplete="off"
+              spellCheck={false}
+              maxLength={12}
+              aria-describedby="cmd-hint"
+              aria-invalid={commandError}
+            />
+            <button className="key key-go" type="submit">
+              {t.bar.go}
+            </button>
+            <p id="cmd-hint" className={`cmd-hint${commandError ? " is-error" : ""}`} aria-live="polite">
+              {commandError ? `${t.bar.unknown} ${functions.map((f) => f.code).join(" ")}` : ""}
+            </p>
+          </form>
+
+          <div className="bar-status">
+            <span className="status-open">
+              <i aria-hidden="true" />
+              {t.bar.open}
+            </span>
+            <span className="status-clock" suppressHydrationWarning>
+              MAD {clock ?? "--:--"}
+            </span>
             <button
-              className="language-button"
+              className="lang"
               type="button"
               onClick={() => setLanguage(language === "es" ? "en" : "es")}
               aria-label={language === "es" ? "Switch to English" : "Cambiar a español"}
             >
-              {language === "es" ? "EN" : "ES"}
+              <span className={language === "es" ? "is-on" : ""}>ES</span>
+              <span className={language === "en" ? "is-on" : ""}>EN</span>
             </button>
           </div>
+        </div>
 
-          <button
-            className="menu-button"
-            type="button"
-            aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((value) => !value)}
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+        <nav className="fkeys" aria-label={t.bar.menu}>
+          <div className="shell fkeys-row">
+            {functions.map((fn) => (
+              <a
+                key={fn.code}
+                href={`#${fn.id}`}
+                className={`fkey${active === fn.code ? " is-active" : ""}`}
+                aria-current={active === fn.code ? "location" : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  jump(fn.code);
+                }}
+              >
+                <kbd>{fn.key}</kbd>
+                <span className="fkey-code">{fn.code}</span>
+                <span className="fkey-name">{t.fn[fn.code]}</span>
+              </a>
+            ))}
+            <span
+              className="fkey-indicator"
+              aria-hidden="true"
+              style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`, opacity: activeIndex < 0 ? 0 : 1 }}
+            />
+          </div>
         </nav>
       </header>
 
-      <main>
-        <section className="hero-section" id="hero">
-          <HeroCanvas />
-          <div className="hero-grid" aria-hidden="true" />
-          <div className="hero-shell">
-            <div className="hero-copy">
-              <div className="hero-currently">
-                <span className="currently-dot" aria-hidden="true" />
-                {language === "es" ? "Actualmente en" : "Currently at"} GASIB · CEPSA
-              </div>
-              <p className="eyebrow">{t.hero.greeting}</p>
-              <h1>Claudio Baldini</h1>
-              <p className="hero-role">{t.hero.role}</p>
-              <p className="hero-description">{t.hero.description}</p>
+      <main id="top">
+        <section className="hero shell" aria-labelledby="hero-name">
+          <div className="hero-id">
+            <h1 id="hero-name" className="hero-name">
+              <span>
+                <Scramble text="Claudio" />
+              </span>
+              <span>
+                <Scramble text="Baldini" delay={120} />
+              </span>
+            </h1>
+            <p className="hero-headline hero-in" style={{ ["--i" as string]: 1 }}>
+              {t.hero.headline}
+            </p>
+            <p className="hero-sub hero-in" style={{ ["--i" as string]: 2 }}>
+              {t.hero.sub}
+            </p>
 
-              <div className="hero-actions">
-                <a className="button button-primary" href="#projects">
-                  {t.hero.projects}
-                  <ArrowRight size={18} />
-                </a>
-                <a className="button button-ghost" href="#contact">
-                  {t.hero.contact}
-                  <MessageSquareText size={18} />
-                </a>
-              </div>
+            <dl className="des">
+              {t.hero.rows.map((row, i) => (
+                <div key={row.k} className="hero-in" style={{ ["--i" as string]: i + 3 }}>
+                  <dt>{row.k}</dt>
+                  <dd>{row.v}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="hero-actions hero-in" style={{ ["--i" as string]: 7 }}>
+              <a
+                className="key key-primary"
+                href="#contacto"
+                onClick={(e) => {
+                  e.preventDefault();
+                  jump("CON");
+                }}
+              >
+                {t.hero.contact}
+                <span className="key-go-tag">GO</span>
+              </a>
+              <a className="key key-ghost" href={contact.linkedin} target="_blank" rel="noreferrer">
+                {t.hero.linkedin}
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </a>
             </div>
+          </div>
 
-            <aside className="hero-panel" aria-label={t.hero.availability}>
-              <div className="status-pill">
-                <Sparkles size={16} />
-                <span>{t.hero.availability}</span>
-              </div>
-              <div className="metric-grid">
-                {t.metrics.map((metric) => (
-                  <div className="metric" key={metric.label}>
-                    <strong>{metric.value}</strong>
-                    <span>{metric.label}</span>
-                  </div>
+          <CareerChart
+            locale={language === "es" ? "es-ES" : "en-GB"}
+            now={now}
+            labels={{
+              title: t.hero.chartTitle,
+              work: t.hero.chartWork,
+              study: t.hero.chartStudy,
+              present: t.hero.present,
+            }}
+          />
+        </section>
+
+        <section {...panelProps("PER")}>
+          <div className="shell">
+            <PanelHead code="PER" title={t.about.title} />
+            <div className="per-grid">
+              <div className="prose reveal">
+                {t.about.paragraphs.map((para) => (
+                  <p key={para.slice(0, 24)}>{para}</p>
                 ))}
               </div>
-            </aside>
-          </div>
-        </section>
-
-        <section className="section" id="about">
-          <div className="container">
-            <SectionHeader num="01" label={t.about.label} title={t.about.title} />
-            <div className="about-layout">
-              <div className="about-copy reveal">
-                <p>{t.about.text}</p>
-              </div>
-
-              <div className="education-panel reveal reveal-d1">
-                <div className="panel-heading">
-                  <GraduationCap size={20} />
-                  <h3>{t.about.education}</h3>
-                </div>
-                <div className="education-list">
-                  {t.education.map((item, index) => {
-                    const Icon = educationIcons[index] ?? GraduationCap;
-                    const isFeatured = "featured" in item && item.featured;
-                    const verification = "verification" in item ? item.verification : undefined;
-                    return (
-                      <article className={`education-item ${isFeatured ? "featured" : ""}`} key={item.title}>
-                        <div className="education-icon">
-                          <Icon size={20} />
-                        </div>
-                        <div>
-                          <h4>{item.title}</h4>
-                          <p>{item.institution}</p>
-                          <span>{item.date}</span>
-                          {verification ? (
-                            <a href={verification} target="_blank" rel="noreferrer">
-                              {t.about.verify}
-                              <ExternalLink size={14} />
-                            </a>
-                          ) : null}
-                        </div>
-                        {isFeatured ? (
-                          <button className="diploma-preview" type="button" onClick={() => setLightboxOpen(true)}>
-                            <Image
-                              src="/diploma-master.png"
-                              width={260}
-                              height={180}
-                              alt="Diploma Máster Data Analytics"
-                            />
-                          </button>
-                        ) : null}
-                      </article>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="section section-muted" id="experience">
-          <div className="container">
-            <SectionHeader num="02" label={t.experience.label} title={t.experience.title} />
-            <div className="timeline">
-              {t.experience.items.map((item, index) => (
-                <article className={`timeline-card reveal reveal-d${index + 1}`} key={`${item.company}-${item.date}`}>
-                  <div className="timeline-marker" aria-hidden="true" />
-                  <div className="timeline-content">
-                    <div className="timeline-top">
-                      <div>
-                        <h3>{item.company}</h3>
-                        <p>{item.role}</p>
-                      </div>
-                      <span>{item.date}</span>
-                    </div>
-                    <ul>
-                      {item.tasks.map((task) => (
-                        <li key={task}>
-                          <CheckCircle2 size={16} />
-                          {task}
-                        </li>
-                      ))}
-                    </ul>
+              <dl className="facts">
+                {t.about.facts.map((fact, i) => (
+                  <div key={fact.k} className="reveal" style={{ ["--i" as string]: i }}>
+                    <dt>{fact.k}</dt>
+                    <dd {...(/^\d+$/.test(fact.v) ? { "data-count": fact.v } : {})}>{fact.v}</dd>
                   </div>
-                </article>
-              ))}
+                ))}
+              </dl>
             </div>
           </div>
         </section>
 
-        <section className="section" id="projects">
-          <div className="container">
-            <SectionHeader num="03" label={t.projects.label} title={t.projects.title} />
-            <div className="projects-grid">
-              {t.projects.items.map((project, index) => {
-                const Icon = projectIcons[project.icon as keyof typeof projectIcons] ?? BarChart3;
-                const status = "status" in project ? project.status : undefined;
-                const href = "href" in project ? project.href : undefined;
+        <section {...panelProps("EXP")}>
+          <div className="shell">
+            <PanelHead code="EXP" title={t.experience.title} meta={`${t.experience.items.length} reg.`} />
+            <div className="ledger" role="list">
+              <div className="ledger-cols" aria-hidden="true">
+                <span>{t.experience.cols.period}</span>
+                <span>{t.experience.cols.company}</span>
+                <span>{t.experience.cols.role}</span>
+                <span>{t.experience.cols.mode}</span>
+              </div>
+              {t.experience.items.map((item, index) => {
+                const open = openRole === index;
+                const isCurrent = "current" in item && item.current;
                 return (
-                  <article className={`project-card reveal reveal-d${index + 1}`} key={project.title}>
-                    <div className="project-num-badge">/{String(index + 1).padStart(2, "0")}</div>
-                    <div className="project-icon">
-                      <Icon size={26} />
+                  <article
+                    className={`ledger-row reveal${open ? " is-open" : ""}`}
+                    style={{ ["--i" as string]: index }}
+                    role="listitem"
+                    key={item.company}
+                  >
+                    <button
+                      className="ledger-summary"
+                      type="button"
+                      aria-expanded={open}
+                      aria-controls={`role-${index}`}
+                      onClick={() => setOpenRole(open ? -1 : index)}
+                    >
+                      <span className="ledger-period">
+                        {isCurrent ? <i className="live-dot" aria-hidden="true" /> : null}
+                        {item.period}
+                      </span>
+                      <span className="ledger-company">{item.company}</span>
+                      <span className="ledger-role">{item.role}</span>
+                      <span className="ledger-mode">{item.mode}</span>
+                      <ChevronDown className="ledger-chevron" size={16} aria-hidden="true" />
+                      <span className="sr-only">{open ? t.experience.collapse : t.experience.expand}</span>
+                    </button>
+                    <div className="ledger-detail" id={`role-${index}`} inert={!open}>
+                      <div className="ledger-detail-inner">
+                        <ul>
+                          {item.tasks.map((task, i) => (
+                            <li key={task} style={{ ["--i" as string]: i }}>
+                              {task}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="tags">
+                          {item.tags.map((tag) => (
+                            <span key={tag}>{tag}</span>
+                          ))}
+                        </p>
+                      </div>
                     </div>
-                    {status ? <span className="project-status">{status}</span> : null}
-                    <h3>{project.title}</h3>
-                    <p>{project.description}</p>
-                    <div className="tag-row">
-                      {project.tags.map((tag) => (
-                        <span key={tag}>{tag}</span>
-                      ))}
-                    </div>
-                    {href ? (
-                      <a className="project-link" href={href} target="_blank" rel="noreferrer">
-                        {t.projects.github}
-                        <ExternalLink size={15} />
-                      </a>
-                    ) : (
-                      <span className="project-link is-disabled">{t.projects.wip}</span>
-                    )}
                   </article>
                 );
               })}
             </div>
-          </div>
-        </section>
 
-        <section className="section section-muted" id="skills">
-          <div className="container">
-            <SectionHeader num="04" label={t.skills.label} title={t.skills.title} />
-            <div className="skills-grid">
-              {t.skills.groups.map((group, index) => (
-                <article className={`skill-group reveal reveal-d${index + 1}`} key={group.title}>
-                  <h3>{group.title}</h3>
-                  <div className="skill-list">
-                    {group.skills.map((skill) => (
-                      <span key={skill}>
-                        <ChevronRight size={15} />
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              ))}
+            <div className="before reveal">
+              <h3>{t.experience.earlier}</h3>
+              <ul>
+                {t.experience.before.map((item) => (
+                  <li key={item.company}>
+                    <span>{item.period}</span>
+                    <strong>{item.company}</strong>
+                    <span>{item.role}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
 
-        <section className="section" id="contact">
-          <div className="container">
-            <SectionHeader num="05" label={t.contact.label} title={t.contact.title} />
-            <div className="contact-grid">
-              <div className="contact-info reveal">
-                <p>{t.contact.intro}</p>
-                <div className="contact-links">
-                  <a href="mailto:Cbaldiniwork@gmail.com">
-                    <Mail size={19} />
-                    <span>
-                      <strong>Email</strong>
-                      <small>Cbaldiniwork@gmail.com</small>
+        <section {...panelProps("PRJ")}>
+          <div className="shell">
+            <PanelHead code="PRJ" title={t.projects.title} meta={it.hint} />
+            <ol className="projects">
+              {t.projects.items.map((project, index) => {
+                const id = projectIds[index];
+                const href = "href" in project ? project.href : undefined;
+                return (
+                  <li
+                    data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
+                    className={`project reveal ${preview?.id === id ? "is-previewing" : ""}`}
+                    style={{ ["--i" as string]: index }}
+                    key={project.title}
+                  >
+                    <span className={`project-status${href ? " is-live" : ""}`}>
+                      {href ? t.projects.live : t.projects.wip}
                     </span>
-                  </a>
-                  <a href="tel:+34658209727">
-                    <Phone size={19} />
-                    <span>
-                      <strong>{t.contact.phone}</strong>
-                      <small>658 209 727</small>
+                    <div className="project-body">
+                      <h3>
+                        <button {...previewButton(id, project.title)}>{project.title}</button>
+                      </h3>
+                      <p>{project.description}</p>
+                      <p className="tags">
+                        {project.tags.map((tag) => (
+                          <span key={tag}>{tag}</span>
+                        ))}
+                      </p>
+                    </div>
+                    <span className="row-cue" aria-hidden="true">
+                      {href ? "GitHub" : t.projects.soon}
+                      <ArrowUpRight size={14} />
                     </span>
-                  </a>
-                  <a href="https://es.linkedin.com/in/claudio-baldini-2338251b9" target="_blank" rel="noreferrer">
-                    <BriefcaseBusiness size={19} />
-                    <span>
-                      <strong>LinkedIn</strong>
-                      <small>claudio-baldini</small>
-                    </span>
-                  </a>
-                  <a href="https://github.com/Claudiobaldinii" target="_blank" rel="noreferrer">
-                    <GitBranch size={19} />
-                    <span>
-                      <strong>GitHub</strong>
-                      <small>Claudiobaldinii</small>
-                    </span>
-                  </a>
-                </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+        </section>
+
+        <section {...panelProps("STK")}>
+          <div className="shell">
+            <PanelHead code="STK" title={t.stack.title} />
+            <table className="matrix reveal">
+              <thead>
+                <tr>
+                  <th scope="col">{t.stack.cols.area}</th>
+                  <th scope="col">{t.stack.cols.tool}</th>
+                  <th scope="col">{t.stack.cols.where}</th>
+                </tr>
+              </thead>
+              {t.stack.groups.map((group) => (
+                <tbody key={group.area}>
+                  {group.rows.map((row, i) => (
+                    <tr key={row.tool}>
+                      {i === 0 ? (
+                        <th scope="rowgroup" rowSpan={group.rows.length}>
+                          {group.area}
+                        </th>
+                      ) : null}
+                      <td className="matrix-tool">{row.tool}</td>
+                      <td>{row.where}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              ))}
+            </table>
+          </div>
+        </section>
+
+        <section {...panelProps("EDU")}>
+          <div className="shell">
+            <PanelHead code="EDU" title={t.education.title} meta={it.hint} />
+            <div className="edu-grid">
+              <ul className="edu-list">
+                {t.education.degrees.map((degree, index) => {
+                  const id = degreeIds[index];
+                  const featured = "featured" in degree && degree.featured;
+                  const note = "note" in degree ? degree.note : undefined;
+                  return (
+                    <li
+                      key={degree.title}
+                      data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
+                      className={`reveal ${featured ? "is-featured" : ""} ${preview?.id === id ? "is-previewing" : ""}`}
+                      style={{ ["--i" as string]: index }}
+                    >
+                      <span className="edu-period">{degree.period}</span>
+                      <div>
+                        <h3>
+                          <button {...previewButton(id, degree.title)}>{degree.title}</button>
+                        </h3>
+                        <p>{degree.school}</p>
+                        {note ? <p className="edu-note">{note}</p> : null}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <ul className="certs">
+                {t.education.certs.map((cert, index) => {
+                  const id = certIds[index];
+                  return (
+                    <li
+                      key={cert.title}
+                      data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
+                      className={`reveal ${preview?.id === id ? "is-previewing" : ""}`}
+                      style={{ ["--i" as string]: index }}
+                    >
+                      <span className="edu-period">{cert.period}</span>
+                      <h3>
+                        <button {...previewButton(id, cert.title)}>{cert.title}</button>
+                      </h3>
+                      <p>{cert.school}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section {...panelProps("CON")}>
+          <div className="shell">
+            <PanelHead code="CON" title={t.contactSection.title} />
+            <div className="con-grid">
+              <div className="reveal">
+                <p className="con-intro">{t.contactSection.intro}</p>
+                <ul className="channels">
+                  <li>
+                    <a href={`mailto:${contact.email}`}>
+                      <Mail size={18} aria-hidden="true" />
+                      <span>Email</span>
+                      <strong>{contact.email}</strong>
+                    </a>
+                  </li>
+                  <li>
+                    <a href={`tel:${contact.phone}`}>
+                      <Phone size={18} aria-hidden="true" />
+                      <span>{t.contactSection.phone}</span>
+                      <strong>{contact.phoneLabel}</strong>
+                    </a>
+                  </li>
+                  <li {...previewRow("con-linkedin")}>
+                    <button {...previewButton("con-linkedin", "LinkedIn")} className="channel-btn">
+                      <BriefcaseBusiness size={18} aria-hidden="true" />
+                      <span>LinkedIn</span>
+                      <strong>claudio-baldini</strong>
+                    </button>
+                  </li>
+                  <li {...previewRow("con-github")}>
+                    <button {...previewButton("con-github", "GitHub")} className="channel-btn">
+                      <GitBranch size={18} aria-hidden="true" />
+                      <span>GitHub</span>
+                      <strong>Claudiobaldinii</strong>
+                    </button>
+                  </li>
+                </ul>
               </div>
 
-              <form className="contact-form reveal reveal-d1" onSubmit={handleSubmit}>
+              <form className="form reveal" style={{ ["--i" as string]: 1 }} onSubmit={handleSubmit}>
                 <label>
-                  {t.contact.name}
-                  <input name="name" type="text" autoComplete="name" placeholder={t.contact.namePlaceholder} required />
+                  <span>{t.contactSection.name}</span>
+                  <input name="name" type="text" autoComplete="name" placeholder={t.contactSection.namePh} required />
                 </label>
                 <label>
-                  {t.contact.email}
-                  <input
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder={t.contact.emailPlaceholder}
-                    required
-                  />
+                  <span>{t.contactSection.email}</span>
+                  <input name="email" type="email" autoComplete="email" placeholder={t.contactSection.emailPh} required />
                 </label>
                 <label>
-                  {t.contact.message}
-                  <textarea name="message" rows={5} placeholder={t.contact.messagePlaceholder} required />
+                  <span>{t.contactSection.message}</span>
+                  <textarea name="message" rows={5} placeholder={t.contactSection.messagePh} required />
                 </label>
-                <button className="button button-primary" type="submit">
-                  {sent ? t.contact.sent : t.contact.send}
-                  <Mail size={18} />
+                <button className="key key-primary" type="submit">
+                  {sent ? t.contactSection.sent : t.contactSection.send}
+                  <span className="key-go-tag">GO</span>
                 </button>
               </form>
             </div>
@@ -395,16 +745,52 @@ export function PortfolioSite() {
         </section>
       </main>
 
-      <footer className="footer">{t.footer}</footer>
+      <footer className="foot">
+        <div className="shell">{t.footer}</div>
+      </footer>
+
+      {preview && openPreview ? (
+        <>
+          {preview.sheet ? (
+            <button className="sheet-backdrop" type="button" tabIndex={-1} aria-label={it.close} onClick={() => closePreview(true)} />
+          ) : null}
+          <Inspector
+            key={`${preview.id}-${language}`}
+            ref={inspectorRef}
+            preview={openPreview}
+            anchor={preview.anchor}
+            pinned={preview.pinned}
+            sheet={preview.sheet}
+            text={it}
+            onClose={() => closePreview(true)}
+            onPointerEnter={() => window.clearTimeout(closeTimer.current)}
+            onPointerLeave={() => {
+              if (!preview.pinned) closeTimer.current = window.setTimeout(() => setPreview(null), 220);
+            }}
+            onDiploma={() => {
+              closePreview();
+              setLightboxOpen(true);
+            }}
+          />
+        </>
+      ) : null}
 
       {lightboxOpen ? (
-        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Diploma">
-          <button className="lightbox-backdrop" type="button" onClick={() => setLightboxOpen(false)} aria-label="Cerrar" />
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label={t.education.diplomaAlt}>
+          <button
+            className="lightbox-backdrop"
+            type="button"
+            tabIndex={-1}
+            onClick={() => setLightboxOpen(false)}
+            aria-label={t.education.close}
+          />
           <div className="lightbox-card">
-            <button className="lightbox-close" type="button" onClick={() => setLightboxOpen(false)} aria-label="Cerrar">
-              <X size={20} />
+            <button ref={closeRef} className="lightbox-close" type="button" onClick={() => setLightboxOpen(false)}>
+              <X size={18} aria-hidden="true" />
+              {t.education.close}
             </button>
-            <Image src="/diploma-master.png" width={1160} height={820} alt="Diploma Máster Data Analytics" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${basePath}/diploma-master.png`} width={1160} height={820} alt={t.education.diplomaAlt} />
           </div>
         </div>
       ) : null}
@@ -412,14 +798,30 @@ export function PortfolioSite() {
   );
 }
 
-function SectionHeader({ num, label, title }: { num: string; label: string; title: string }) {
+function countUp(el: HTMLElement) {
+  const target = Number(el.dataset.count);
+  if (!Number.isFinite(target)) return;
+  const start = performance.now();
+  const duration = 900;
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 4);
+    el.textContent = String(Math.round(target * eased));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function PanelHead({ code, title, meta }: { code: FunctionCode; title: string; meta?: string }) {
   return (
-    <div className="section-header reveal">
-      <span className="section-num" aria-hidden="true">{num}</span>
-      <div className="section-title-wrap">
-        <span className="section-label">{label}</span>
-        <h2>{title}</h2>
-      </div>
+    <div className="panel-head reveal">
+      <span className="panel-code" aria-hidden="true">
+        {code}
+      </span>
+      <h2 id={`${code}-title`}>
+        <Scramble text={title} />
+      </h2>
+      {meta ? <span className="panel-meta">{meta}</span> : null}
     </div>
   );
 }

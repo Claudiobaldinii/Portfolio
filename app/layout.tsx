@@ -1,23 +1,35 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Archivo, Martian_Mono } from "next/font/google";
 import "./globals.css";
-import { CustomCursor } from "@/components/CustomCursor";
 
-const inter = Inter({
+const mono = Martian_Mono({
   subsets: ["latin"],
+  axes: ["wdth"],
   display: "swap",
+  variable: "--font-mono",
+});
+
+const display = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  display: "swap",
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
   title: "Claudio Baldini | Finance & Data Analyst",
   description:
-    "Portfolio profesional de Claudio Baldini, Finance & Data Analyst especializado en finanzas, datos, automatización e IA aplicada.",
+    "Gestor de activos y contable en Cepsa. SAP FI-AA, contabilidad y tesorería, con automatización y análisis de datos en SQL, Power BI y Python.",
   openGraph: {
     title: "Claudio Baldini | Finance & Data Analyst",
-    description:
-      "Finanzas, análisis de datos, automatización e IA aplicada a procesos financieros.",
+    description: "SAP FI-AA, contabilidad y tesorería, con automatización y análisis de datos en SQL, Power BI y Python.",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#09090b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -26,11 +38,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        <CustomCursor />
-        {children}
-      </body>
+    <html lang="es" className={`${mono.variable} ${display.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }
