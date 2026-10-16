@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, X } from "lucide-react";
 import { forwardRef, useLayoutEffect, useRef, useState } from "react";
+import { FramePlayer } from "@/components/FramePlayer";
 import type { Preview } from "@/lib/previews";
 
 export type InspectorAnchor = { x: number; y: number };
@@ -50,7 +51,7 @@ export const Inspector = forwardRef<HTMLDivElement, Props>(function Inspector(
         if (typeof forwardedRef === "function") forwardedRef(node);
         else if (forwardedRef) forwardedRef.current = node;
       }}
-      className={`inspector${sheet ? " is-sheet" : ""}${pinned ? " is-pinned" : ""}`}
+      className={`inspector${sheet ? " is-sheet" : ""}${pinned ? " is-pinned" : ""}${preview.media ? " has-media" : ""}`}
       role="dialog"
       aria-modal={sheet ? true : undefined}
       aria-labelledby="inspector-title"
@@ -69,39 +70,54 @@ export const Inspector = forwardRef<HTMLDivElement, Props>(function Inspector(
         </button>
       </header>
 
-      <div className="inspector-body">
-        <h3 id="inspector-title" className="inspector-line" style={{ ["--d" as string]: 0 }}>
-          {preview.title}
-        </h3>
-        <p className="inspector-summary inspector-line" style={{ ["--d" as string]: 1 }}>
-          {preview.summary}
-        </p>
-        <dl className="inspector-facts">
-          {preview.facts.map((fact, i) => (
-            <div className="inspector-line" style={{ ["--d" as string]: i + 2 }} key={fact.k}>
-              <dt>{fact.k}</dt>
-              <dd>{fact.v}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-
-      <footer className="inspector-actions inspector-line" style={{ ["--d" as string]: preview.facts.length + 2 }}>
-        {preview.action ? (
-          <a className="key key-primary" href={preview.action.href} target="_blank" rel="noreferrer">
-            {preview.action.label}
-            <ArrowUpRight size={16} aria-hidden="true" />
-          </a>
-        ) : (
-          <span className="inspector-soon">{text.soon}</span>
-        )}
-        {preview.diploma ? (
-          <button className="key key-ghost" type="button" onClick={onDiploma}>
-            {text.diploma}
-          </button>
+      <div className="inspector-main">
+        {preview.media ? (
+          <div className="inspector-media inspector-line" style={{ ["--d" as string]: 0 }}>
+            <FramePlayer frames={preview.media.frames} alt={preview.media.alt} />
+          </div>
         ) : null}
-        {!sheet ? <span className="inspector-esc">{text.escape}</span> : null}
-      </footer>
+        <div className="inspector-content">
+          <div className="inspector-body">
+            <h3 id="inspector-title" className="inspector-line" style={{ ["--d" as string]: 0 }}>
+              {preview.title}
+            </h3>
+            <p className="inspector-summary inspector-line" style={{ ["--d" as string]: 1 }}>
+              {preview.summary}
+            </p>
+            <dl className="inspector-facts">
+              {preview.facts.map((fact, i) => (
+                <div className="inspector-line" style={{ ["--d" as string]: i + 2 }} key={fact.k}>
+                  <dt>{fact.k}</dt>
+                  <dd>{fact.v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+    
+          <footer className="inspector-actions inspector-line" style={{ ["--d" as string]: preview.facts.length + 2 }}>
+            {preview.action ? (
+              <a className="key key-primary" href={preview.action.href} target="_blank" rel="noreferrer">
+                {preview.action.label}
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </a>
+            ) : (
+              <span className="inspector-soon">{text.soon}</span>
+            )}
+            {preview.diploma ? (
+              <button className="key key-ghost" type="button" onClick={onDiploma}>
+                {text.diploma}
+              </button>
+            ) : null}
+            {preview.secondary ? (
+              <a className="key key-ghost" href={preview.secondary.href} target="_blank" rel="noreferrer">
+                {preview.secondary.label}
+                <ArrowUpRight size={16} aria-hidden="true" />
+              </a>
+            ) : null}
+            {!sheet ? <span className="inspector-esc">{text.escape}</span> : null}
+          </footer>
+        </div>
+      </div>
     </div>
   );
 });

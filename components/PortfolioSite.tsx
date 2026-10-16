@@ -22,7 +22,7 @@ import { inspectorText, PreviewId, previews } from "@/lib/previews";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-const projectIds: PreviewId[] = ["prj-salarios", "prj-ecommerce", "prj-facturas"];
+const projectIds: PreviewId[] = ["prj-gastos", "prj-salarios", "prj-ecommerce", "prj-facturas"];
 const degreeIds: PreviewId[] = ["edu-master", "edu-ifp", "edu-uru", "edu-bach"];
 const certIds: PreviewId[] = ["cert-data", "cert-excel", "cert-ia", "cert-dataviz"];
 

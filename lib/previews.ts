@@ -7,10 +7,13 @@ export type Preview = {
   summary: string;
   facts: { k: string; v: string }[];
   action?: { label: string; href: string };
+  secondary?: { label: string; href: string };
+  media?: { frames: string[]; alt: string };
   diploma?: boolean;
 };
 
 export type PreviewId =
+  | "prj-gastos"
   | "prj-salarios"
   | "prj-ecommerce"
   | "prj-facturas"
@@ -48,8 +51,23 @@ const repo = (name: string) => `${contact.github}/${name}`;
 
 export const previews: Record<Language, Record<PreviewId, Preview>> = {
   es: {
-    "prj-salarios": {
+    "prj-gastos": {
       code: "PRJ · 01",
+      kind: "Aplicación web",
+      title: "App de control de gastos personales",
+      summary:
+        "Una app para saber en qué se va el dinero y cuánto se puede ahorrar cada mes. Se configura una vez (ingresos y límite por categoría), se apuntan los gastos en dos toques y la app avisa de lo que queda; cumplir límites y ahorro da estrellas y medallas.",
+      facts: [
+        { k: "Funciones", v: "Presupuestos, gastos, objetivos, préstamos, histórico" },
+        { k: "Datos", v: "Guardados solo en el dispositivo · copia JSON" },
+        { k: "Tecnología", v: "React · JavaScript · un único HTML" },
+      ],
+      media: { frames: ["/projects/gastos/01.jpg", "/projects/gastos/02.jpg", "/projects/gastos/03.jpg", "/projects/gastos/04.jpg", "/projects/gastos/05.jpg", "/projects/gastos/06.jpg", "/projects/gastos/07.jpg"], alt: "Pantallas de la app con datos de ejemplo" },
+      action: { label: "Probar la app", href: "https://claudiobaldinii.github.io/App-control-de-gastos/APP%20Finanzas%20Personales/" },
+      secondary: { label: "Ver código", href: repo("App-control-de-gastos") },
+    },
+    "prj-salarios": {
+      code: "PRJ · 02",
       kind: "Proyecto",
       title: "Análisis de salarios: Data Science vs Data Analytics",
       summary:
@@ -62,7 +80,7 @@ export const previews: Record<Language, Record<PreviewId, Preview>> = {
       action: { label: "Abrir en GitHub", href: repo("Analisis_salarios") },
     },
     "prj-ecommerce": {
-      code: "PRJ · 02",
+      code: "PRJ · 03",
       kind: "Proyecto",
       title: "Análisis 360° de un e-commerce",
       summary:
@@ -75,7 +93,7 @@ export const previews: Record<Language, Record<PreviewId, Preview>> = {
       action: { label: "Abrir en GitHub", href: repo("Proyecto_Final") },
     },
     "prj-facturas": {
-      code: "PRJ · 03",
+      code: "PRJ · 04",
       kind: "Proyecto en desarrollo",
       title: "Extractor de facturas PDF",
       summary:
@@ -205,8 +223,23 @@ export const previews: Record<Language, Record<PreviewId, Preview>> = {
     },
   },
   en: {
-    "prj-salarios": {
+    "prj-gastos": {
       code: "PRJ · 01",
+      kind: "Web app",
+      title: "Personal expense tracker app",
+      summary:
+        "An app to see where the money goes and how much can be saved each month. Set it up once (income and a limit per category), log expenses in two taps and it tells you what is left; staying within limits and saving earns stars and medals.",
+      facts: [
+        { k: "Features", v: "Budgets, expenses, goals, loans, history" },
+        { k: "Data", v: "Stored on the device only · JSON backup" },
+        { k: "Tech", v: "React · JavaScript · single HTML file" },
+      ],
+      media: { frames: ["/projects/gastos/01.jpg", "/projects/gastos/02.jpg", "/projects/gastos/03.jpg", "/projects/gastos/04.jpg", "/projects/gastos/05.jpg", "/projects/gastos/06.jpg", "/projects/gastos/07.jpg"], alt: "App screens with sample data" },
+      action: { label: "Try the app", href: "https://claudiobaldinii.github.io/App-control-de-gastos/APP%20Finanzas%20Personales/" },
+      secondary: { label: "View code", href: repo("App-control-de-gastos") },
+    },
+    "prj-salarios": {
+      code: "PRJ · 02",
       kind: "Project",
       title: "Salary analysis: Data Science vs Data Analytics",
       summary:
@@ -219,7 +252,7 @@ export const previews: Record<Language, Record<PreviewId, Preview>> = {
       action: { label: "Open on GitHub", href: repo("Analisis_salarios") },
     },
     "prj-ecommerce": {
-      code: "PRJ · 02",
+      code: "PRJ · 03",
       kind: "Project",
       title: "360° e-commerce analysis",
       summary:
@@ -232,7 +265,7 @@ export const previews: Record<Language, Record<PreviewId, Preview>> = {
       action: { label: "Open on GitHub", href: repo("Proyecto_Final") },
     },
     "prj-facturas": {
-      code: "PRJ · 03",
+      code: "PRJ · 04",
       kind: "Project in progress",
       title: "PDF invoice extractor",
       summary:

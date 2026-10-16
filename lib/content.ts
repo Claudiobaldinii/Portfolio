@@ -171,6 +171,13 @@ export const content = {
       soon: "Próximamente",
       items: [
         {
+          title: "App de control de gastos personales",
+          description:
+            "Aplicación web para controlar gastos y ahorro: presupuestos por categoría, registro de gastos, objetivos, préstamos, histórico mensual y medallas por cumplir los límites. Los datos se guardan solo en el dispositivo.",
+          tags: ["React", "JavaScript", "UX", "localStorage"],
+          href: "https://github.com/Claudiobaldinii/App-control-de-gastos",
+        },
+        {
           title: "Análisis de salarios: Data Science vs Data Analytics",
           description:
             "EDA sobre salarios del sector datos en EE. UU. (2020–2024): limpieza, transformación y dashboard interactivo en Excel por experiencia, modalidad, tamaño de empresa y evolución anual.",
@@ -406,6 +413,13 @@ export const content = {
       github: "View on GitHub",
       soon: "Coming soon",
       items: [
+        {
+          title: "Personal expense tracker app",
+          description:
+            "Web app to track spending and savings: budgets per category, expense logging, goals, loans, monthly history and medals for staying within limits. Data stays on the device.",
+          tags: ["React", "JavaScript", "UX", "localStorage"],
+          href: "https://github.com/Claudiobaldinii/App-control-de-gastos",
+        },
         {
           title: "Salary analysis: Data Science vs Data Analytics",
           description:
