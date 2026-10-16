@@ -34,6 +34,14 @@ const projectIcons = {
 
 const educationIcons = [GraduationCap, BriefcaseBusiness, BarChart3, BadgeCheck, Building2, Database];
 
+const navNums: Record<string, string> = {
+  about: "01",
+  experience: "02",
+  projects: "03",
+  skills: "04",
+  contact: "05",
+};
+
 export function PortfolioSite() {
   const [language, setLanguage] = useState<Language>("es");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -109,6 +117,7 @@ export function PortfolioSite() {
           <div className={`nav-links ${menuOpen ? "is-open" : ""}`}>
             {navItems.map((item) => (
               <a key={item.key} href={item.href} onClick={() => setMenuOpen(false)}>
+                <span className="nav-num">{navNums[item.key]}</span>
                 {t.nav[item.key]}
               </a>
             ))}
@@ -140,6 +149,10 @@ export function PortfolioSite() {
           <div className="hero-grid" aria-hidden="true" />
           <div className="hero-shell">
             <div className="hero-copy">
+              <div className="hero-currently">
+                <span className="currently-dot" aria-hidden="true" />
+                {language === "es" ? "Actualmente en" : "Currently at"} GASIB · CEPSA
+              </div>
               <p className="eyebrow">{t.hero.greeting}</p>
               <h1>Claudio Baldini</h1>
               <p className="hero-role">{t.hero.role}</p>
@@ -176,7 +189,7 @@ export function PortfolioSite() {
 
         <section className="section" id="about">
           <div className="container">
-            <SectionHeader label={t.about.label} title={t.about.title} />
+            <SectionHeader num="01" label={t.about.label} title={t.about.title} />
             <div className="about-layout">
               <div className="about-copy reveal">
                 <p>{t.about.text}</p>
@@ -229,7 +242,7 @@ export function PortfolioSite() {
 
         <section className="section section-muted" id="experience">
           <div className="container">
-            <SectionHeader label={t.experience.label} title={t.experience.title} />
+            <SectionHeader num="02" label={t.experience.label} title={t.experience.title} />
             <div className="timeline">
               {t.experience.items.map((item, index) => (
                 <article className={`timeline-card reveal reveal-d${index + 1}`} key={`${item.company}-${item.date}`}>
@@ -259,7 +272,7 @@ export function PortfolioSite() {
 
         <section className="section" id="projects">
           <div className="container">
-            <SectionHeader label={t.projects.label} title={t.projects.title} />
+            <SectionHeader num="03" label={t.projects.label} title={t.projects.title} />
             <div className="projects-grid">
               {t.projects.items.map((project, index) => {
                 const Icon = projectIcons[project.icon as keyof typeof projectIcons] ?? BarChart3;
@@ -267,6 +280,7 @@ export function PortfolioSite() {
                 const href = "href" in project ? project.href : undefined;
                 return (
                   <article className={`project-card reveal reveal-d${index + 1}`} key={project.title}>
+                    <div className="project-num-badge">/{String(index + 1).padStart(2, "0")}</div>
                     <div className="project-icon">
                       <Icon size={26} />
                     </div>
@@ -295,7 +309,7 @@ export function PortfolioSite() {
 
         <section className="section section-muted" id="skills">
           <div className="container">
-            <SectionHeader label={t.skills.label} title={t.skills.title} />
+            <SectionHeader num="04" label={t.skills.label} title={t.skills.title} />
             <div className="skills-grid">
               {t.skills.groups.map((group, index) => (
                 <article className={`skill-group reveal reveal-d${index + 1}`} key={group.title}>
@@ -316,7 +330,7 @@ export function PortfolioSite() {
 
         <section className="section" id="contact">
           <div className="container">
-            <SectionHeader label={t.contact.label} title={t.contact.title} />
+            <SectionHeader num="05" label={t.contact.label} title={t.contact.title} />
             <div className="contact-grid">
               <div className="contact-info reveal">
                 <p>{t.contact.intro}</p>
@@ -398,11 +412,14 @@ export function PortfolioSite() {
   );
 }
 
-function SectionHeader({ label, title }: { label: string; title: string }) {
+function SectionHeader({ num, label, title }: { num: string; label: string; title: string }) {
   return (
     <div className="section-header reveal">
-      <span>{label}</span>
-      <h2>{title}</h2>
+      <span className="section-num" aria-hidden="true">{num}</span>
+      <div className="section-title-wrap">
+        <span className="section-label">{label}</span>
+        <h2>{title}</h2>
+      </div>
     </div>
   );
 }
