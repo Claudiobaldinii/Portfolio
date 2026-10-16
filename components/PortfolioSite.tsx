@@ -123,9 +123,10 @@ export function PortfolioSite() {
       },
       { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
     );
-    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    document.querySelectorAll(".reveal:not([data-in])").forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+    /* Re-run on language change: rows keyed by text remount without data-in. */
+  }, [language]);
 
   const jump = useCallback((code: FunctionCode) => {
     const fn = functions.find((f) => f.code === code);
@@ -474,13 +475,13 @@ export function PortfolioSite() {
             <PanelHead code="PER" title={t.about.title} />
             <div className="per-grid">
               <div className="prose reveal">
-                {t.about.paragraphs.map((para) => (
-                  <p key={para.slice(0, 24)}>{para}</p>
+                {t.about.paragraphs.map((para, i) => (
+                  <p key={i}>{para}</p>
                 ))}
               </div>
               <dl className="facts">
                 {t.about.facts.map((fact, i) => (
-                  <div key={fact.k} className="reveal" style={{ ["--i" as string]: i }}>
+                  <div key={i} className="reveal" style={{ ["--i" as string]: i }}>
                     <dt>{fact.k}</dt>
                     <dd {...(/^\d+$/.test(fact.v) ? { "data-count": fact.v } : {})}>{fact.v}</dd>
                   </div>
@@ -531,7 +532,7 @@ export function PortfolioSite() {
                       <div className="ledger-detail-inner">
                         <ul>
                           {item.tasks.map((task, i) => (
-                            <li key={task} style={{ ["--i" as string]: i }}>
+                            <li key={i} style={{ ["--i" as string]: i }}>
                               {task}
                             </li>
                           ))}
@@ -575,7 +576,7 @@ export function PortfolioSite() {
                     data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
                     className={`project reveal ${preview?.id === id ? "is-previewing" : ""}`}
                     style={{ ["--i" as string]: index }}
-                    key={project.title}
+                    key={id}
                   >
                     <span className={`project-status${href ? " is-live" : ""}`}>
                       {href ? t.projects.live : t.projects.wip}
@@ -643,7 +644,7 @@ export function PortfolioSite() {
                   const note = "note" in degree ? degree.note : undefined;
                   return (
                     <li
-                      key={degree.title}
+                      key={id}
                       data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
                       className={`reveal ${featured ? "is-featured" : ""} ${preview?.id === id ? "is-previewing" : ""}`}
                       style={{ ["--i" as string]: index }}
@@ -666,7 +667,7 @@ export function PortfolioSite() {
                   const id = certIds[index];
                   return (
                     <li
-                      key={cert.title}
+                      key={id}
                       data-preview={id} onPointerEnter={onRowEnter} onPointerLeave={onRowLeave}
                       className={`reveal ${preview?.id === id ? "is-previewing" : ""}`}
                       style={{ ["--i" as string]: index }}
